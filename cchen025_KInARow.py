@@ -29,8 +29,10 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         self.nickname = 'Yoda'
         if twin: self.nickname += '2'
         self.long_name = 'Jedi Master Yoda'
-        if twin: self.long_name += '\'s Evil Clone'
         self.persona = 'Wise'
+        if twin: 
+            self.long_name += '\'s Sith Clone'
+            self.persona = 'Cunning'
         self.voice_info = {'Chrome': 10, 'Firefox': 2, 'other': 0}
         self.playing = "" # e.g., "X" or "O".
 
@@ -38,7 +40,7 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         intro = '\nYoda, my name is. Jedi Master, I am. \n'+\
             'Made me, Castor and Tony did. \n'+\
             'Use the force to win, I will. \n'
-        if self.twin: intro += "Evil Clone, I am.\n A Jedi Master, I am not.\n Kill you, I will.\n"
+        if self.twin: intro = "Evil Yoda Sith Clone, I am.\n A Jedi Master, I am not.\n Obliterate you, I will.\n"
         return intro
 
     # Receive and acknowledge information about the game from
@@ -52,11 +54,15 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
                                       # changed mid-game by the game master.
         utterances_matter=True):      # If False, just return 'OK' for each utterance.
 
-       # Write code to save the relevant information in variables
-       # local to this instance of the agent.
-       # Game-type info can be in global variables.
-       print("Change this to return 'OK' when ready to test the method.")
-       return "Not-OK"
+        # Write code to save the relevant information in variables
+        # local to this instance of the agent.
+        # Game-type info can be in global variables.
+        self.game_type = game_type
+        self.what_side_to_play = what_side_to_play
+        self.opponent_nickname = opponent_nickname
+        self.expected_time_per_move = expected_time_per_move
+        self.utterances_matter = utterances_matter
+        return "Not-OK"
    
     # The core of your agent's ability should be implemented here:             
     def makeMove(self, currentState, currentRemark, timeLimit=10000):
