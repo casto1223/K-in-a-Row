@@ -84,20 +84,19 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 
     # returns all possible moves from the current state
     def getPossibleMoves(self, state):
-        # Generate a list of all possible moves from the current state
-        possible_moves = []
-        for i in range(state.board_size):
-            for j in range(state.board_size):
+        possibleMoves = []
+        for i in range(len(state.board)):
+            for j in range((state.board[0])):
                 if state.board[i][j] == ' ':
-                    possible_moves.append((i, j))
-        return possible_moves
+                    possibleMoves.append((i, j))
+        return possibleMoves
 
     # returns the new state after applying a move
     def applyMove(self, state, move):
-        # Apply a move to the state and return the new state
-        new_state = state.copy()
-        new_state.board[move[0]][move[1]] = self.playing
-        return new_state
+        newState = State(old=state)
+        newState.board[move[0]][move[1]] = self.playing
+        newState.change_turn()
+        return newState
 
     # The main adversarial search function:
     def minimax(self,
