@@ -13,6 +13,13 @@ TO PROVIDE A GOOD STRUCTURE FOR YOUR IMPLEMENTATION.
 
 from agent_base import KAgent
 from game_types import State, Game_Type
+import google.generativeai as genai
+
+
+genai.configure(api_key="AIzaSyDtTnQTv7V3s30S2f0vZJnyhaMx9rl5Lkw")
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+
 
 AUTHORS = 'Tony Wu and Castor Chen' 
 
@@ -75,9 +82,8 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
     
         newState = currentState # This is not allowed, and even if
         # it were allowed, the newState should be a deep COPY of the old.
-    
-        newRemark = "I need to think of something appropriate.\n" +\
-        "Well, I guess I can say that this move is probably illegal."
+        
+        newRemark = self.getResponse(currentRemark)
 
         print("Returning from makeMove")
         return [[a_default_move, newState], newRemark]
@@ -105,6 +111,16 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         # Values should be higher when the states are better for X,
         # lower when better for O.
         return 0
+    
+    def getResponse(self, currentRemark):
+        newRemark = "OK"
+        if (self.utterances_matter):
+
+            newRemark = model.generate_content("""Pretend you are""" + self.long_name + """ in a K-in-a-row game. 
+                Your opponent just said \"""" + currentRemark + """\". What is your response?""")
+        newRemark += "\n"
+        print(newRemark)
+        return newRemark
  
 # OPTIONAL THINGS TO KEEP TRACK OF:
 
@@ -114,3 +130,4 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 #  UTTERANCE_COUNT = 0
 #  REPEAT_COUNT = 0 or a table of these if you are reusing different utterances
 
+OurAgent 
