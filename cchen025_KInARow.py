@@ -221,7 +221,7 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         if (self.utterances_matter):
             try:
                 response = model.generate_content(
-                    f"Pretend you are {self.long_name} in a K-in-a-row game. "
+                    f"Pretend you are {self.long_name} with a {self.persona} persona in a K-in-a-row game."
                     f"Your opponent just said \"{currentRemark}\". What is your response?"
                 )
                 return response.text + "\n"
