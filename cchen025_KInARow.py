@@ -66,7 +66,7 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         # local to this instance of the agent.
         # Game-type info can be in global variables.
         self.game_type = game_type
-        self.what_side_to_play = what_side_to_play
+        self.playing = what_side_to_play
         self.opponent_nickname = opponent_nickname
         self.expected_time_per_move = expected_time_per_move
         self.utterances_matter = utterances_matter
@@ -82,13 +82,13 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 
         # Set depthRemaining based on k
         depthRemaining = 3
-        k = self.game_type.k
-        if k <= 3:
-            depthRemaining = 3
-        elif k <= 5:
-            depthRemaining = 5
-        else:
-            depthRemaining = 7
+        #k = self.game_type.k
+        #if k <= 3:
+        #    depthRemaining = 3
+        #elif k <= 5:
+        #    depthRemaining = 5
+        #else:
+        #    depthRemaining = 7
         
         # minimax to find the best move
         bestMove, _ = self.minimax(currentState, depthRemaining, pruning=True, alpha=float('-inf'), beta=float('inf'))
@@ -134,31 +134,31 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         bestMove = None
         
         if self.playing == 'X':
-            max = float('-inf')
+            maxVal = float('-inf')
             for move in self.getPossibleMoves(state):
                 new_state = self.applyMove(state, move)
                 _, eval = self.minimax(new_state, depthRemaining - 1, pruning, alpha, beta, zHashing)
-                if eval > max:
-                    max = eval
+                if eval > maxVal:
+                    maxVal = eval
                     bestMove = move
                 if pruning:
                     alpha = max(alpha, eval)
                     if beta is not None and beta <= alpha:
                         break
-            return bestMove, max
+            return bestMove, maxVal
         else:
-            min = float('inf')
+            minVal = float('inf')
             for move in self.getPossibleMoves(state):
                 new_state = self.applyMove(state, move)
                 _, eval = self.minimax(new_state, depthRemaining - 1, pruning, alpha, beta, zHashing)
-                if eval < min:
-                    min = eval
+                if eval < minVal:
+                    minVal = eval
                     bestMove = move
                 if pruning:
                     beta = min(beta, eval)
                     if alpha is not None and beta <= alpha:
                         break
-            return bestMove, min
+            return bestMove, minVal
  
     def staticEval(self, state):
 
@@ -172,32 +172,26 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
                 return all(cell == player for cell in cells)
             
             count = 0
-            # check rows and cols
-            for i in range(len(board)):
-                for j in range(len(board[0]) - length + 1):
-                    # rows
-                    if isValidSequence(board[i][j:j+length]):
-                        count += 1
-                    # cols
-                    if isValidSequence([board[j+k][i] for k in range(length)]):
-                        count += 1
-
-            # check diags
+            # rows
+            for row in board:
+                count += sum(1 for i in range(len(row) - length + 1) if isValidSequence(row[i:i+length]))
+            # cols
+            for col in range(len(board[0])):
+                count += sum(1 for i in range(len(board) - length + 1) if isValidSequence([board[i+j][col] for j in range(length)]))
+            # diags
             for i in range(len(board) - length + 1):
                 for j in range(len(board[0]) - length + 1):
-                    # down-right diag
                     if isValidSequence([board[i+k][j+k] for k in range(length)]):
                         count += 1
-                    # down-left diag
                     if isValidSequence([board[i+k][j+length-1-k] for k in range(length)]):
                         count += 1
-            
+
             return count
         
-        # count the num of streaks of length 1 to K-1 for a player
+        # count the num of streaks of length 1 to K for a player
         def count_streaks(board, player):
             score = 0
-            for streakLen in range(1, self.game_type.k):
+            for streakLen in range(1, self.game_type.k + 1):
                 temp = count_sequences(board, player, streakLen)
 
                 # set weights
@@ -210,8 +204,20 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
                 score += temp * weight
             return score
         
-        X_score = count_streaks(state.board, 'X')
-        O_score = count_streaks(state.board, 'O')
+        # pieces closer to the center are more valuable
+        def center_weight(board, player):
+            center_row = len(board) // 2
+            center_col = len(board[0]) // 2
+            weight = 0
+            for i in range(len(board)):
+                for j in range(len(board[0])):
+                    if board[i][j] == player:
+                        distance = abs(center_row - i) + abs(center_col - j)
+                        weight += 1.5**(len(board) + len(board[0]) - distance)
+            return weight
+        
+        X_score = count_streaks(state.board, 'X') + center_weight(state.board, 'X')
+        O_score = count_streaks(state.board, 'O') + center_weight(state.board, 'O')
 
         return X_score - O_score
     
