@@ -14,6 +14,7 @@ TO PROVIDE A GOOD STRUCTURE FOR YOUR IMPLEMENTATION.
 from agent_base import KAgent
 from game_types import State, Game_Type
 import google.generativeai as genai
+import math
 
 
 genai.configure(api_key="AIzaSyDtTnQTv7V3s30S2f0vZJnyhaMx9rl5Lkw")
@@ -73,26 +74,40 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
    
     # The core of your agent's ability should be implemented here:             
     def makeMove(self, currentState, currentRemark, timeLimit=10000):
-        print("makeMove has been called")
 
-        print("code to compute a good move should go here.")
-        # Here's a placeholder:
-        a_default_move = [0, 0] # This might be legal ONCE in a game,
-        # if the square is not forbidden or already occupied.
-    
-        newState = currentState # This is not allowed, and even if
-        # it were allowed, the newState should be a deep COPY of the old.
+        # get all possible moves
+        possibleMoves = self.getPossibleMoves(currentState)
+        if not possibleMoves:
+            return None, "No possible moves."
+
+        # Set depthRemaining based on k
+        depthRemaining = 3
+        k = self.game_type.k
+        if k <= 3:
+            depthRemaining = 3
+        elif k <= 5:
+            depthRemaining = 5
+        else:
+            depthRemaining = 7
         
+        # minimax to find the best move
+        bestMove, _ = self.minimax(currentState, depthRemaining, pruning=True, alpha=float('-inf'), beta=float('inf'))
+        if (bestMove == None):
+            return None, "No possible moves."
+
+        # apply the best move to get the new state
+        newState = self.applyMove(currentState, bestMove)
+
+        # generate a new utterance
         newRemark = self.getResponse(currentRemark)
 
-        print("Returning from makeMove")
-        return [[a_default_move, newState], newRemark]
+        return [[bestMove, newState], newRemark]
 
     # returns all possible moves from the current state
     def getPossibleMoves(self, state):
         possibleMoves = []
         for i in range(len(state.board)):
-            for j in range((state.board[0])):
+            for j in range(len(state.board[0])):
                 if state.board[i][j] == ' ':
                     possibleMoves.append((i, j))
         return possibleMoves
@@ -112,7 +127,8 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
             alpha=None,
             beta=None,
             zHashing=None):
-        if depthRemaining == 0 or state.is_terminal():
+        
+        if depthRemaining == 0 or state.finished:
             return None, self.staticEval(state)
         
         bestMove = None
@@ -124,7 +140,7 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
                 _, eval = self.minimax(new_state, depthRemaining - 1, pruning, alpha, beta, zHashing)
                 if eval > max:
                     max = eval
-                    best_move = move
+                    bestMove = move
                 if pruning:
                     alpha = max(alpha, eval)
                     if beta is not None and beta <= alpha:
@@ -137,26 +153,80 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
                 _, eval = self.minimax(new_state, depthRemaining - 1, pruning, alpha, beta, zHashing)
                 if eval < min:
                     min = eval
-                    best_move = move
+                    bestMove = move
                 if pruning:
                     beta = min(beta, eval)
                     if alpha is not None and beta <= alpha:
                         break
-            return best_move, min
+            return bestMove, min
  
     def staticEval(self, state):
-        print('calling staticEval. Its value needs to be computed!')
-        # Values should be higher when the states are better for X,
-        # lower when better for O.
-        return 0
+
+        # helper method that counts the number of 
+        # k-in-a-row sequences for a player
+        def count_sequences(board, player, length):
+
+            # helper method to check if a sequence is valid, 
+            # i.e., all cells are the same and not blocked
+            def isValidSequence(cells):
+                return all(cell == player for cell in cells)
+            
+            count = 0
+            # check rows and cols
+            for i in range(len(board)):
+                for j in range(len(board[0]) - length + 1):
+                    # rows
+                    if isValidSequence(board[i][j:j+length]):
+                        count += 1
+                    # cols
+                    if isValidSequence([board[j+k][i] for k in range(length)]):
+                        count += 1
+
+            # check diags
+            for i in range(len(board) - length + 1):
+                for j in range(len(board[0]) - length + 1):
+                    # down-right diag
+                    if isValidSequence([board[i+k][j+k] for k in range(length)]):
+                        count += 1
+                    # down-left diag
+                    if isValidSequence([board[i+k][j+length-1-k] for k in range(length)]):
+                        count += 1
+            
+            return count
+        
+        # count the num of streaks of length 1 to K-1 for a player
+        def count_streaks(board, player):
+            score = 0
+            for streakLen in range(1, self.game_type.k):
+                temp = count_sequences(board, player, streakLen)
+
+                # set weights
+                # with sigmoid func
+                # weight = 1 / (1 + math.exp(-streakLen))
+
+                # with exponential func
+                weight = (1.6**streakLen)
+
+                score += temp * weight
+            return score
+        
+        X_score = count_streaks(state.board, 'X')
+        O_score = count_streaks(state.board, 'O')
+
+        return X_score - O_score
     
     def getResponse(self, currentRemark):
         newRemark = "OK"
         self.utterances_matter = True
         if (self.utterances_matter):
-            newRemark = model.generate_content("""Pretend you are""" + self.long_name + """ in a K-in-a-row game. 
-                Your opponent just said \"""" + currentRemark + """\". What is your response?""").text + "\n"
-        print(newRemark)
+            try:
+                response = model.generate_content(
+                    f"Pretend you are {self.long_name} in a K-in-a-row game. "
+                    f"Your opponent just said \"{currentRemark}\". What is your response?"
+                )
+                return response.text + "\n"
+            except Exception as e:
+                return "Down, Gemini® is. Respond, I cannot."
         return newRemark
  
 # OPTIONAL THINGS TO KEEP TRACK OF:
