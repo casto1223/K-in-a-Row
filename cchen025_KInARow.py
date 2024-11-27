@@ -88,6 +88,23 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         print("Returning from makeMove")
         return [[a_default_move, newState], newRemark]
 
+    # returns all possible moves from the current state
+    def getPossibleMoves(self, state):
+        # Generate a list of all possible moves from the current state
+        possible_moves = []
+        for i in range(state.board_size):
+            for j in range(state.board_size):
+                if state.board[i][j] == ' ':
+                    possible_moves.append((i, j))
+        return possible_moves
+
+    # returns the new state after applying a move
+    def applyMove(self, state, move):
+        # Apply a move to the state and return the new state
+        new_state = state.copy()
+        new_state.board[move[0]][move[1]] = self.playing
+        return new_state
+
     # The main adversarial search function:
     def minimax(self,
             state,
@@ -96,15 +113,37 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
             alpha=None,
             beta=None,
             zHashing=None):
-        print("Calling minimax. We need to implement its body.")
-
-        default_score = 0 # Value of the passed-in state. Needs to be computed.
-    
-        return [default_score, "my own optional stuff", "more of my stuff"]
-        # Only the score is required here but other stuff can be returned
-        # in the list, after the score, in case you want to pass info
-        # back from recursive calls that might be used in your utterances,
-        # etc. 
+        if depthRemaining == 0 or state.is_terminal():
+            return None, self.staticEval(state)
+        
+        bestMove = None
+        
+        if self.playing == 'X':
+            max = float('-inf')
+            for move in self.getPossibleMoves(state):
+                new_state = self.applyMove(state, move)
+                _, eval = self.minimax(new_state, depthRemaining - 1, pruning, alpha, beta, zHashing)
+                if eval > max:
+                    max = eval
+                    best_move = move
+                if pruning:
+                    alpha = max(alpha, eval)
+                    if beta is not None and beta <= alpha:
+                        break
+            return bestMove, max
+        else:
+            min = float('inf')
+            for move in self.getPossibleMoves(state):
+                new_state = self.applyMove(state, move)
+                _, eval = self.minimax(new_state, depthRemaining - 1, pruning, alpha, beta, zHashing)
+                if eval < min:
+                    min = eval
+                    best_move = move
+                if pruning:
+                    beta = min(beta, eval)
+                    if alpha is not None and beta <= alpha:
+                        break
+            return best_move, min
  
     def staticEval(self, state):
         print('calling staticEval. Its value needs to be computed!')
