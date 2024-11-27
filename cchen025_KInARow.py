@@ -130,4 +130,4 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 #  UTTERANCE_COUNT = 0
 #  REPEAT_COUNT = 0 or a table of these if you are reusing different utterances
 
-OurAgent 
+mike = OurAgent(False)
