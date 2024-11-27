@@ -14,7 +14,7 @@ TO PROVIDE A GOOD STRUCTURE FOR YOUR IMPLEMENTATION.
 from agent_base import KAgent
 from game_types import State, Game_Type
 
-AUTHORS = 'Jane Smith and Laura Lee' 
+AUTHORS = 'Tony Wu and Castor Chen' 
 
 import time # You'll probably need this to avoid losing a
  # game due to exceeding a time limit.
@@ -26,19 +26,19 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 
     def __init__(self, twin=False):
         self.twin=twin
-        self.nickname = 'Nic'
+        self.nickname = 'Yoda'
         if twin: self.nickname += '2'
-        self.long_name = 'Templatus Skeletus'
-        if twin: self.long_name += ' II'
-        self.persona = 'bland'
+        self.long_name = 'Jedi Master Yoda'
+        if twin: self.long_name += '\'s Evil Clone'
+        self.persona = 'Wise'
         self.voice_info = {'Chrome': 10, 'Firefox': 2, 'other': 0}
-        self.playing = "don't know yet" # e.g., "X" or "O".
+        self.playing = "" # e.g., "X" or "O".
 
     def introduce(self):
-        intro = '\nMy name is Templatus Skeletus.\n'+\
-            '"An instructor" made me.\n'+\
-            'Somebody please turn me into a real game-playing agent!\n'
-        if self.twin: intro += "By the way, I'm the TWIN.\n"
+        intro = '\nYoda, my name is. Jedi Master, I am. \n'+\
+            'Made me, Castor and Tony did. \n'+\
+            'Use the force to win, I will. \n'
+        if self.twin: intro += "Evil Clone, I am.\n A Jedi Master, I am not.\n Kill you, I will.\n"
         return intro
 
     # Receive and acknowledge information about the game from
