@@ -34,11 +34,11 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
     def __init__(self, twin=False):
         self.twin=twin
         self.nickname = 'Yoda'
-        if twin: self.nickname += '2'
+        if twin: self.nickname += 'Sith'
         self.long_name = 'Jedi Master Yoda'
         self.persona = 'Wise'
         if twin: 
-            self.long_name += '\'s Sith Clone'
+            self.long_name += '\'s Evil Sith Clone'
             self.persona = 'Cunning'
         self.voice_info = {'Chrome': 10, 'Firefox': 2, 'other': 0}
         self.playing = "" # e.g., "X" or "O".
@@ -153,11 +153,10 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
     
     def getResponse(self, currentRemark):
         newRemark = "OK"
+        self.utterances_matter = True
         if (self.utterances_matter):
-
             newRemark = model.generate_content("""Pretend you are""" + self.long_name + """ in a K-in-a-row game. 
-                Your opponent just said \"""" + currentRemark + """\". What is your response?""")
-        newRemark += "\n"
+                Your opponent just said \"""" + currentRemark + """\". What is your response?""").text + "\n"
         print(newRemark)
         return newRemark
  
@@ -169,4 +168,10 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 #  UTTERANCE_COUNT = 0
 #  REPEAT_COUNT = 0 or a table of these if you are reusing different utterances
 
-mike = OurAgent(False)
+# I used python 3.9 and 
+# pip install -q -U google-generativeai
+# To install agent. More info: https://ai.google.dev/gemini-api/docs/quickstart?lang=python
+
+# Sample code to test agent, output in terminal
+agent = OurAgent(True)
+agent.getResponse("Are you evil?")
