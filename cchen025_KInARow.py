@@ -62,8 +62,6 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         self.opponent_nickname = opponent_nickname
         self.expected_time_per_move = expected_time_per_move
         self.utterances_matter = utterances_matter
-        if (utterances_matter):
-            print(self.introduce())
         return "Not-OK"
    
     # The core of your agent's ability should be implemented here:             
