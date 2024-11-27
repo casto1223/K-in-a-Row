@@ -1,5 +1,5 @@
 '''
-<yourUWNetID>_KInARow.py
+cchen025_KInARow.py
 Authors: Wu, Tony; Chen, Castor
 
 An agent for playing "K-in-a-Row with Forbidden Squares" and related games.
@@ -14,7 +14,7 @@ TO PROVIDE A GOOD STRUCTURE FOR YOUR IMPLEMENTATION.
 from agent_base import KAgent
 from game_types import State, Game_Type
 
-AUTHORS = 'Jane Smith and Laura Lee' 
+AUTHORS = 'Tony Wu and Castor Chen' 
 
 import time # You'll probably need this to avoid losing a
  # game due to exceeding a time limit.
