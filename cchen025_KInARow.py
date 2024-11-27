@@ -82,13 +82,13 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 
         # Set depthRemaining based on k
         depthRemaining = 3
-        #k = self.game_type.k
-        #if k <= 3:
-        #    depthRemaining = 3
-        #elif k <= 5:
-        #    depthRemaining = 5
-        #else:
-        #    depthRemaining = 7
+        k = self.game_type.k
+        if k <= 3:
+            depthRemaining = 3
+        elif k <= 5:
+            depthRemaining = 5
+        else:
+            depthRemaining = 7
         
         # minimax to find the best move
         bestMove, _ = self.minimax(currentState, depthRemaining, pruning=True, alpha=float('-inf'), beta=float('inf'))
