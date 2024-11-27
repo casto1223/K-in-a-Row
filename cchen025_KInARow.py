@@ -211,9 +211,9 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
             weight = 0
             for i in range(len(board)):
                 for j in range(len(board[0])):
-                    if board[i][j] == player:
+                    if board[i][j] == player: 
                         distance = abs(center_row - i) + abs(center_col - j)
-                        weight += 1.5**(len(board) + len(board[0]) - distance)
+                        weight += (len(board) + len(board[0]) - distance)
             return weight
         
         X_score = count_streaks(state.board, 'X') + center_weight(state.board, 'X')
