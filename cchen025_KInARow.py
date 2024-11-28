@@ -40,7 +40,7 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         self.persona = 'Wise'
         if twin: 
             self.long_name += '\'s Evil Sith Clone'
-            self.persona = 'Cunning'
+            self.persona = 'Aggressive'
         self.voice_info = {'Chrome': 10, 'Firefox': 2, 'other': 0}
         self.playing = "" # e.g., "X" or "O".
 
