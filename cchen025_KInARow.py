@@ -86,9 +86,9 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         if k <= 3:
             depthRemaining = 3
         elif k <= 5:
-            depthRemaining = 5
+            depthRemaining = 2
         else:
-            depthRemaining = 7
+            depthRemaining = 2
         
         # minimax to find the best move
         bestMove, _ = self.minimax(currentState, depthRemaining, pruning=True, alpha=float('-inf'), beta=float('inf'))
@@ -191,6 +191,9 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         # count the num of streaks of length 1 to K for a player
         def count_streaks(board, player):
             score = 0
+            weighting = 1.6
+            if self.twin:
+                weighting = 2
             for streakLen in range(1, self.game_type.k + 1):
                 temp = count_sequences(board, player, streakLen)
 
@@ -199,7 +202,7 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
                 # weight = 1 / (1 + math.exp(-streakLen))
 
                 # with exponential func
-                weight = (1.6**streakLen)
+                weight = (weighting**streakLen)
 
                 score += temp * weight
             return score
@@ -227,12 +230,12 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         if (self.utterances_matter):
             try:
                 response = model.generate_content(
-                    f"Pretend you are {self.long_name} with a {self.persona} persona in a K-in-a-row game."
+                    f"Pretend you are {self.long_name} with a {self.persona} persona in a K-in-a-row game playing against {self.opponent_nickname}."
                     f"Your opponent just said \"{currentRemark}\". What is your response?"
                 )
                 return response.text + "\n"
             except Exception as e:
-                return "Down, Gemini® is. Respond, I cannot."
+                return "Down, Gemini is. Respond, I cannot."
         return newRemark
  
 # OPTIONAL THINGS TO KEEP TRACK OF:
