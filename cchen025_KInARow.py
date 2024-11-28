@@ -192,8 +192,6 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
         def count_streaks(board, player):
             score = 0
             weighting = 1.6
-            if self.twin:
-                weighting = 2
             for streakLen in range(1, self.game_type.k + 1):
                 temp = count_sequences(board, player, streakLen)
 
@@ -203,6 +201,8 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 
                 # with exponential func
                 weight = (weighting**streakLen)
+                if self.twin:
+                    weight = max(streakLen, 3)
 
                 score += temp * weight
             return score
@@ -251,5 +251,5 @@ class OurAgent(KAgent):  # Keep the class name "OurAgent" so a game master
 # To install agent. More info: https://ai.google.dev/gemini-api/docs/quickstart?lang=python
 
 # Sample code to test agent, output in terminal
-agent = OurAgent(True)
-agent.getResponse("Are you evil?")
+#agent = OurAgent(True)
+#agent.getResponse("Are you evil?")
