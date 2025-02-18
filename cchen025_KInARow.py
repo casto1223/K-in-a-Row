@@ -17,7 +17,7 @@ import google.generativeai as genai
 import math
 
 
-genai.configure(api_key="AIzaSyDtTnQTv7V3s30S2f0vZJnyhaMx9rl5Lkw")
+# put api key here
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 
